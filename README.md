@@ -100,7 +100,7 @@ MFCQI uses a Drake Equation-inspired geometric mean to ensure all quality factor
   MFCQI = (M₁ × M₂ × ... × Mₙ)^(1/n)
   ```
 
-Where n is the number of metrics applied (typically 7-13, depending on paradigm).
+Where n is the number of metrics applied (typically 10-13, depending on paradigm).
 
 ### Core Metrics (Always Included)
 
@@ -110,17 +110,18 @@ Where n is the number of metrics applied (typically 7-13, depending on paradigm)
 - **Maintainability Index**: Combines complexity, volume, and lines of code for readability
 - **Code Duplication**: Detects duplicate code blocks across the codebase
 - **Documentation Coverage**: Measures docstring coverage for public functions/classes
-- **Security**: Analyzes vulnerability density using CVSS scoring and CWE mapping
+- **Security (Bandit SAST)**: Analyzes code vulnerability density using CVSS scoring and CWE mapping
+- **Dependency Security (pip-audit SCA)**: Scans third-party dependencies for known vulnerabilities
+- **Secrets Exposure (detect-secrets)**: Detects hardcoded credentials, API keys, and tokens
+- **Code Smell Density**: Multi-layer detection of architectural, design, implementation, and test smells
 
 ### Object-Oriented Metrics (Auto-Applied Based on Paradigm)
 
 - **RFC (Response for Class)**: Measures class complexity via method count and calls
 - **DIT (Depth of Inheritance Tree)**: Analyzes inheritance structure depth
 - **MHF (Method Hiding Factor)**: Evaluates encapsulation quality (private vs public methods)
-
-### Optional Metrics
-
-- **Design Pattern Density**: Detects usage of common design patterns (auto-included for complex codebases)
+- **CBO (Coupling Between Objects)**: Measures inter-class coupling for architectural quality
+- **LCOM (Lack of Cohesion of Methods)**: Evaluates method cohesion within classes
 
 ## Paradigm-Aware Analysis
 
@@ -212,7 +213,7 @@ mfcqi models pull llama3.2
 
 ## Metrics Analyzed
 
-### Core Metrics (Always Applied)
+### Core Metrics
 
 - **Cyclomatic Complexity**: Measures the number of linearly independent paths through code
 - **Cognitive Complexity**: Evaluates how difficult code is to understand
@@ -220,7 +221,10 @@ mfcqi models pull llama3.2
 - **Maintainability Index**: Composite metric combining complexity, volume, and lines of code
 - **Code Duplication**: Percentage of duplicate code blocks in the codebase
 - **Documentation Coverage**: Ratio of documented to undocumented public functions/classes
-- **Security**: Vulnerability density measured using CVSS scores with CWE categorization
+- **Security (Bandit SAST)**: Vulnerability density measured using CVSS scores with CWE categorization
+- **Dependency Security (pip-audit SCA)**: Scans dependencies for known CVEs with severity-weighted scoring
+- **Secrets Exposure (detect-secrets)**: Detects hardcoded credentials using high-entropy string analysis
+- **Code Smell Density**: Aggregated detection of code smells using PyExamine and AST test smell analysis
 
 ### Object-Oriented Metrics (Paradigm-Based)
 
@@ -229,10 +233,8 @@ Applied automatically when OO code is detected:
 - **RFC (Response for Class)**: Number of methods that can be executed in response to a message
 - **DIT (Depth of Inheritance Tree)**: Maximum inheritance path from class to root hierarchy
 - **MHF (Method Hiding Factor)**: Ratio of private/protected methods to total methods
-
-### Optional Metrics (Conditionally Included)
-
-- **Design Pattern Density**: Detection of GoF patterns (auto-enabled for complex codebases)
+- **CBO (Coupling Between Objects)**: Number of classes to which a class is coupled
+- **LCOM (Lack of Cohesion of Methods)**: Connected components in method-attribute graph
 
 ### Security Metric Details
 
@@ -244,15 +246,6 @@ The Security metric evaluates code vulnerability density using industry-standard
 - **Vulnerability Density**: Calculated as CVSS points per source line of code (SLOC)
 - **Normalization**: Uses exponential decay function for smooth scoring gradient
 - **Configurable Thresholds**: Default threshold of 0.03 (3 CVSS points per 100 lines) balances security and practicality
-
-### Diagnostic Tools (Not in MFCQI Score)
-
-These tools provide additional insights but don't affect the MFCQI score:
-
-- **Ruff**: Fast Python linter for style and error checking
-- **Pylint**: Comprehensive code analysis tool
-- **Bandit**: Security vulnerability scanner
-- **Coupling/Cohesion Analysis**: Used internally to determine codebase complexity
 
 ## Development
 
@@ -365,7 +358,7 @@ MFCQI is based on extensive research in code quality metrics with **Python-speci
 
 ### Validation & Calibration (October 2025)
 
-MFCQI underwent rigorous empirical validation to ensure accuracy for Python codebases:
+MFCQI underwent some empirical validation to ensure accuracy for Python codebases:
 
 **Reference Libraries Tested**:
 - **requests** (0.874) - Gold standard HTTP library

@@ -604,7 +604,7 @@ Weight reduced to 0.55 to reflect:
 - Moderate importance for architectural quality assessment
 - Optional metric (only applied to OO code)
 
-#### 11. Lack of Cohesion of Methods - LCOM (Weight: 0.65)
+#### 11. Lack of Cohesion of Methods - LCOM (Weight: 0.50)
 
 **Definition**: Measure of how well methods within a class relate to each other through shared instance variables
 
@@ -617,28 +617,29 @@ Weight reduced to 0.55 to reflect:
 **Evidence**:
 
 - Chidamber & Kemerer (1994): Part of original CK metrics suite
-- Basili et al. (1996): Correlation with fault-proneness
-- Li & Henry (1993): LCOM predicts maintenance effort
+- Li & Henry (1993): LCOM correlated with maintenance effort (no r-value published)
+- Basili et al. (1996): Initially showed correlation with fault-proneness
+- **Meta-analyses**: Mixed evidence - "LCOM has less than 50% success portion... no positive impact on fault proneness"
 
-**Literature Weight**: 0.60 (from CK metrics suite)
+**Literature Weight**: 0.60 (from original CK metrics suite)
 
-**Implemented Weight**: 0.65
+**Implemented Weight**: 0.50 (REDUCED from literature due to weak empirical validation)
 
-**Rationale for Weight Increase**:
+**Rationale for Weight Reduction**:
 
-Slightly higher than literature because cohesion is critical:
+Despite being part of CK metrics suite, empirical evidence is **mixed at best**:
 
-- **Direct SRP indicator**: LCOM violations indicate Single Responsibility Principle breaches
-- **Predicts maintenance effort**: Li & Henry correlation with effort
-- **Fault-proneness correlation**: Basili et al. empirical validation
-- **Decomposition signal**: High LCOM indicates class should be split
+- **Inconsistent results**: Meta-analyses show < 50% success rate in fault prediction
+- **Weaker than other CK metrics**: CBO (r=0.42), RFC (r=0.48) have published correlations; LCOM does not
+- **No published correlation coefficient**: Li & Henry claimed correlation but no r-value
+- **Subsequent studies contradict**: Meta-analyses found "no positive impact on fault proneness"
 
-Weight increased to 0.65 to reflect:
+Weight reduced to 0.50 to reflect:
 
-- Direct indicator of design quality issues
-- Strong correlation with maintainability
-- Clear actionable signal (split class)
-- Important for architectural assessment
+- ⚠️ Value as SRP indicator (conceptual usefulness)
+- ⚠️ Weaker empirical support than CBO, RFC, or complexity metrics
+- ⚠️ Mixed results in fault prediction studies
+- ✅ Still useful for design assessment (actionable signal to split classes)
 
 **Normalization**:
 
@@ -663,9 +664,28 @@ else: score = 0.0  # Very poor, likely god class
 
 - Chidamber & Kemerer (1994): Original CK metric
 - Basili et al. (1996): CBO > 5 correlates with increased fault density
-- Subramanyam & Krishnan (2003): Coupling predicts defects (r=0.42)
+- **Subramanyam & Krishnan (2003): Coupling predicts defects (r=0.42)**
 
-**Weight Rationale**: Coupling directly impacts testability and changeability. High coupling increases ripple effects of changes.
+**Literature Weight**: 0.65-0.70 (based on CK metrics suite validation)
+
+**Implemented Weight**: 0.65
+
+**Weight Rationale**:
+
+Evidence-based justification for 0.65 weight:
+
+- **Published correlation**: r=0.42 with defects (Subramanyam & Krishnan 2003)
+- **Comparable to RFC**: RFC has r=0.48 with weight 0.65, CBO r=0.42 justifies same weight
+- **Fault density correlation**: Basili et al. (1996) showed CBO > 5 increases faults
+- **Direct impact**: Coupling affects testability, changeability, and ripple effects
+- **Consistent empirical support**: Multiple studies confirm coupling-defect relationship
+
+Weight 0.65 reflects:
+
+- ✅ Strong empirical evidence (r=0.42 published correlation)
+- ✅ Similar weight to RFC (r=0.48, weight 0.65) - both CK metrics with proven value
+- ✅ Direct impact on maintainability and fault-proneness
+- ✅ Critical architectural quality indicator
 
 **Normalization**:
 
@@ -721,10 +741,8 @@ Weight set to minimal (0.12) because:
 
 **Detection Sources**:
 
-- **Bandit**: Security anti-patterns (hardcoded passwords, eval usage, shell injection)
-- **Pylint**: Code quality issues (unused variables, duplicate code, complexity violations)
-- **Ruff**: Python-specific anti-patterns and style violations with performance implications
-- **PyExamine**: Test-specific smells (assertion roulette, mystery guest, eager test)
+- **PyExamine**: Production code smells across architectural, design, and implementation layers
+- **AST Test Smell Detector**: Test-specific smells (assertion roulette, mystery guest, eager test, etc.)
 
 **Measurement**:
 
@@ -747,9 +765,8 @@ normalized_score = 1.0 / (1.0 + smell_density)  # Inverse normalization
 
 Risk of overlap with other metrics:
 
-- **Potential double-counting**: Smells often detected by multiple tools (Bandit + Pylint + Ruff)
+- **Potential double-counting**: PyExamine detects some smells related to complexity already measured separately
 - **Overlap with complexity**: Many smells are complexity violations already measured
-- **Overlap with duplication**: Ruff detects clones, already measured separately
 - **Tool-dependent detection**: Precision varies across tools
 - **Some intentional**: Design choices may be flagged as "smells"
 

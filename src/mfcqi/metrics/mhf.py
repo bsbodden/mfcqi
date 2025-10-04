@@ -120,7 +120,14 @@ class MHFMetric(Metric):
     def get_weight(self) -> float:
         """Return evidence-based weight for MHF metric.
 
-        Based on research: MHF measures encapsulation quality.
+        Weight: 0.55 (REDUCED from literature weight 0.70)
+        Evidence-based justification:
+        - Literature: Encapsulation studies show correlation with defect prevention
+        - BUT Python has no true private methods (only `_name` convention)
+        - Dynamic reflection/introspection intentionally bypass encapsulation
+        - Measures intent (naming convention) not enforcement
+        - Reduced weight reflects Python-specific limitations
+        - Optional metric (only applied to OO code)
         """
         return 0.55
 

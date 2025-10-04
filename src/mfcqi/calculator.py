@@ -15,7 +15,7 @@ Core metrics include:
 - Security (Bandit SAST)
 - Dependency Security (pip-audit SCA)
 - Secrets Exposure (detect-secrets)
-- Code Smell Density (test smells via AST analysis)
+- Code Smell Density (PyExamine + AST test smells)
 """
 
 from pathlib import Path
@@ -25,7 +25,9 @@ from mfcqi.core.file_utils import get_python_files
 from mfcqi.core.paradigm_detector import ParadigmDetector
 from mfcqi.metrics.code_smell import CodeSmellDensity
 from mfcqi.metrics.cognitive import CognitiveComplexity
+from mfcqi.metrics.cohesion import LackOfCohesionOfMethods
 from mfcqi.metrics.complexity import CyclomaticComplexity, HalsteadComplexity
+from mfcqi.metrics.coupling import CouplingBetweenObjects
 from mfcqi.metrics.dependency_security import DependencySecurityMetric
 from mfcqi.metrics.dit import DITMetric
 from mfcqi.metrics.documentation import DocumentationCoverage
@@ -78,6 +80,8 @@ class MFCQICalculator:
             "rfc": RFCMetric(),  # Response for Class
             "dit": DITMetric(),  # Depth of Inheritance Tree
             "mhf": MHFMetric(),  # Method Hiding Factor
+            "cbo": CouplingBetweenObjects(),  # Coupling Between Objects
+            "lcom": LackOfCohesionOfMethods(),  # Lack of Cohesion of Methods
         }
 
         # Build final metrics dict
@@ -171,8 +175,20 @@ class MFCQICalculator:
     def _add_oo_metrics_for_paradigm(self, paradigm: str, metrics: dict[str, Any]) -> None:
         """Add OO metrics based on specific paradigm."""
         oo_metrics_by_paradigm = {
-            "STRONG_OO": {"rfc": RFCMetric(), "dit": DITMetric(), "mhf": MHFMetric()},
-            "MIXED_OO": {"rfc": RFCMetric(), "dit": DITMetric(), "mhf": MHFMetric()},
+            "STRONG_OO": {
+                "rfc": RFCMetric(),
+                "dit": DITMetric(),
+                "mhf": MHFMetric(),
+                "cbo": CouplingBetweenObjects(),
+                "lcom": LackOfCohesionOfMethods(),
+            },
+            "MIXED_OO": {
+                "rfc": RFCMetric(),
+                "dit": DITMetric(),
+                "mhf": MHFMetric(),
+                "cbo": CouplingBetweenObjects(),
+                "lcom": LackOfCohesionOfMethods(),
+            },
             "WEAK_OO": {"rfc": RFCMetric()},
             "PROCEDURAL": {},
         }
@@ -183,12 +199,14 @@ class MFCQICalculator:
 
     def _add_complexity_based_metrics(self, codebase: Path, metrics: dict[str, Any]) -> None:
         """Add OO metrics based on complexity analysis."""
-        # Add OO metrics
+        # Add all OO metrics
         metrics.update(
             {
                 "rfc": RFCMetric(),
                 "dit": DITMetric(),
                 "mhf": MHFMetric(),
+                "cbo": CouplingBetweenObjects(),
+                "lcom": LackOfCohesionOfMethods(),
             }
         )
 

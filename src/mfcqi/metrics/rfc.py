@@ -175,7 +175,13 @@ class RFCMetric(Metric):
     def get_weight(self) -> float:
         """Return evidence-based weight for RFC metric.
 
-        Based on research: RFC has high correlation with maintenance effort.
+        Weight: 0.65
+        Evidence-based justification:
+        - Subramanyam & Krishnan (2003): r=0.48 correlation with defects
+        - Basili et al. (1996): RFC > 50 correlates with higher fault rates
+        - Chidamber & Kemerer (1994): Original CK metric suite
+        - Direct indicator of class complexity and testing effort
+        - Optional metric (only applied to OO code)
         """
         return 0.65
 

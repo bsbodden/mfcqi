@@ -560,3 +560,161 @@ def test_get_complex_functions_with_file_errors():
 
         # Should return a list (may be empty if error occurred)
         assert isinstance(complex_funcs, list)
+
+
+def test_oo_metrics_include_cbo_and_lcom():
+    """RED: Test that OO code includes CBO and LCOM metrics."""
+    import textwrap
+
+    from mfcqi.calculator import MFCQICalculator
+
+    # OO code with multiple classes and coupling
+    oo_code = textwrap.dedent('''
+        """Object-oriented module with coupling and cohesion."""
+
+        class Database:
+            """Database connection."""
+            def __init__(self):
+                """Initialize database."""
+                self.connection = None
+
+            def connect(self):
+                """Connect to database."""
+                self.connection = "connected"
+                return self.connection
+
+        class UserRepository:
+            """User repository with database coupling."""
+            def __init__(self, database):
+                """Initialize repository.
+
+                Args:
+                    database: Database instance
+                """
+                self.database = database
+                self.cache = {}
+
+            def get_user(self, user_id):
+                """Get user by ID.
+
+                Args:
+                    user_id: User identifier
+                """
+                if user_id in self.cache:
+                    return self.cache[user_id]
+                return None
+
+            def save_user(self, user_id, user_data):
+                """Save user data.
+
+                Args:
+                    user_id: User identifier
+                    user_data: User information
+                """
+                self.cache[user_id] = user_data
+                return user_data
+    ''')
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        (Path(tmpdir) / "repository.py").write_text(oo_code)
+
+        calculator = MFCQICalculator(use_paradigm_detection=True)
+        details = calculator.get_detailed_metrics(Path(tmpdir))
+
+        # Should include CBO (Coupling Between Objects)
+        assert "cbo" in details, "CBO metric should be included for OO code"
+
+        # Should include LCOM (Lack of Cohesion of Methods)
+        assert "lcom" in details, "LCOM metric should be included for OO code"
+
+        # Metrics should be valid scores
+        assert 0.0 <= details["cbo"] <= 1.0
+        assert 0.0 <= details["lcom"] <= 1.0
+
+
+def test_cbo_metric_detects_coupling():
+    """RED: Test that CBO metric correctly detects coupling between classes."""
+    import textwrap
+
+    from mfcqi.calculator import MFCQICalculator
+
+    # Highly coupled classes
+    coupled_code = textwrap.dedent('''
+        """Module with high coupling."""
+
+        class ServiceA:
+            """Service A."""
+            pass
+
+        class ServiceB:
+            """Service B."""
+            pass
+
+        class ServiceC:
+            """Service C."""
+            pass
+
+        class GodObject:
+            """God object with high coupling to many services."""
+            def __init__(self, service_a, service_b, service_c):
+                """Initialize with multiple dependencies."""
+                self.service_a = service_a
+                self.service_b = service_b
+                self.service_c = service_c
+                self.data = {}
+    ''')
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        (Path(tmpdir) / "coupled.py").write_text(coupled_code)
+
+        calculator = MFCQICalculator()
+        details = calculator.get_detailed_metrics(Path(tmpdir))
+
+        # CBO should detect coupling
+        assert "cbo" in details
+        # High coupling should result in lower score
+        assert 0.0 <= details["cbo"] <= 1.0
+
+
+def test_lcom_metric_detects_lack_of_cohesion():
+    """RED: Test that LCOM metric correctly detects lack of cohesion."""
+    import textwrap
+
+    from mfcqi.calculator import MFCQICalculator
+
+    # Class with low cohesion (methods don't share attributes)
+    low_cohesion_code = textwrap.dedent('''
+        """Module with low cohesion class."""
+
+        class MixedResponsibilities:
+            """Class with mixed responsibilities (low cohesion)."""
+
+            def __init__(self):
+                """Initialize with separate data."""
+                self.user_data = {}
+                self.product_data = {}
+                self.order_data = {}
+
+            def manage_user(self, user_id):
+                """Manage user (only uses user_data)."""
+                return self.user_data.get(user_id)
+
+            def manage_product(self, product_id):
+                """Manage product (only uses product_data)."""
+                return self.product_data.get(product_id)
+
+            def manage_order(self, order_id):
+                """Manage order (only uses order_data)."""
+                return self.order_data.get(order_id)
+    ''')
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        (Path(tmpdir) / "low_cohesion.py").write_text(low_cohesion_code)
+
+        calculator = MFCQICalculator()
+        details = calculator.get_detailed_metrics(Path(tmpdir))
+
+        # LCOM should detect lack of cohesion
+        assert "lcom" in details
+        # Low cohesion should result in lower score
+        assert 0.0 <= details["lcom"] <= 1.0

@@ -161,15 +161,17 @@ class LackOfCohesionOfMethods(Metric):
     def get_weight(self) -> float:
         """Return evidence-based weight for cohesion.
 
-        Weight: 0.65 (reduced from 0.8)
+        Weight: 0.50 (reduced from 0.65 based on weak empirical evidence)
         Justification:
-        - LCOM is important for OO design quality
-        - Chidamber & Kemerer metrics show correlation with maintainability
-        - Less direct correlation with defects than complexity metrics
-        - Optional metric (only when coupling/cohesion check triggers)
-        - Moderate-high weight for architectural quality assessment
+        - LCOM is conceptually useful as SRP indicator
+        - BUT meta-analyses show < 50% success in fault prediction
+        - Li & Henry (1993) claimed correlation but no r-value published
+        - Weaker evidence than CBO (r=0.42) or RFC (r=0.48)
+        - Meta-studies found "no positive impact on fault proneness"
+        - Weight 0.50 reflects mixed empirical support
+        - Optional metric (only applied to OO code)
         """
-        return 0.65
+        return 0.50
 
     def get_name(self) -> str:
         """Return the name of this metric."""
