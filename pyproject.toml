@@ -104,4 +104,6 @@ filterwarnings = [
     "ignore:ast.Bytes is deprecated.*:DeprecationWarning",
     "ignore:Attribute s is deprecated.*:DeprecationWarning",
     "ignore:Attribute n is deprecated.*:DeprecationWarning",
+    # Suppress sre_constants deprecation (Python 3.13+)
+    "ignore:module 'sre_constants' is deprecated:DeprecationWarning",
 ]
